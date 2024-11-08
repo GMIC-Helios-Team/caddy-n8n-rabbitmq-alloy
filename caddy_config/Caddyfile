@@ -1,0 +1,14 @@
+rabbitmq.helios.gallery {
+        reverse_proxy rabbitmq:15672
+}
+
+n8n.helios.gallery {
+	reverse_proxy n8n:5678 {
+		flush_interval -1
+	}
+}
+
+otlp.helios.gallery {
+	reverse_proxy alloy:12345
+}
+acme_ca https://acme-v02.api.letsencrypt.org/directory

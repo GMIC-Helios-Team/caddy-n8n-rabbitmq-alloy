@@ -1,0 +1,128 @@
+{
+  "name": "RockPaperSissorsFlow",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"Insult\" :  {{ $json.message.content }} }",
+        "options": {}
+      },
+      "id": "d38c34ca-be26-4824-aa62-5392d1f8074e",
+      "name": "Insult Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        700,
+        400
+      ],
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "content": "## Insult-Generator\n**Description**: Generate an insult with increasing mean-ness.\n**Input**: ClickCount Number\n",
+        "width": 300.97305764566846
+      },
+      "id": "9b5f6b2d-fe39-4530-825b-5baa8a36b422",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        320,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "GenerateInsult",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "70fbd826-8d63-4cea-80fa-e8b1eec8c5e3",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        160,
+        400
+      ],
+      "webhookId": "e70358a8-5206-46ae-8673-64fd62a9c0b2",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-4-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=On a scale of 1 to 100, generate an insult for losing a game of rock, paper, scissors. 1 is the least taunting, and kindest let down, and 100 is the most boastful taunting, mean spirited insult you can generate. As the numbers go up, the taunt is more elaborate as well. The number for this insult is {{ $json.body.clickCount }}. As mean as you get, make sure it is still work friendly this is important. If the scale goes beyond 100, treat it as if it were 100. Make sure your response is in quotes. The insult should be directed towards {{ $json.body.userName }} and should be referenced the majority of the time."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cf3a25e6-07ef-4cb7-8414-8e2a01ac6569",
+      "name": "OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.5,
+      "position": [
+        340,
+        400
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "atk46usWc1uOMfla",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Insult Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dda4889c-6cec-45a2-99e3-d8d9e6b10ec3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "003b54b4a0b473b57bb13d6ebdd313823cc0436b01fadd3b78df8a53a84b8596"
+  },
+  "id": "F34N0N8YVye4pT8x",
+  "tags": []
+}

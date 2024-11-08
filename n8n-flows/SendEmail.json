@@ -1,0 +1,274 @@
+{
+  "name": "SendEmail",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "image-gallery",
+        "updateKey": "HID",
+        "fields": "SendGridMessageId, EmailSentDateTime",
+        "options": {
+          "dateFields": "EmailSentDateTime"
+        }
+      },
+      "id": "193a09f8-120a-4f8c-8fe4-1dd231590dac",
+      "name": "MongoDB3",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        460
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "e8bf759a-fdc1-4844-bf5f-6d6a9e9a16d1",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2d2a1ac-bee3-4ce4-8b54-692bde0de469",
+              "name": "HID",
+              "value": "={{ $('MongoDB2').item.json.HID }}",
+              "type": "string"
+            },
+            {
+              "id": "407a69c0-d44b-4100-b44d-853b3a5941ad",
+              "name": "SendGridMessageId",
+              "value": "={{ $json.messageId }}",
+              "type": "string"
+            },
+            {
+              "id": "475ea5f0-340d-4e21-9285-568d0586a1ee",
+              "name": "EmailSentDateTime",
+              "value": "={{ $now.toString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "eb9f9471-566a-4c57-965d-5aedce38c104",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "image-gallery",
+        "options": {},
+        "query": "={\n  \"HID\":  {{ $json.content.HID.quote() }},\n  \"$or\": [\n    { \"EmailSentDateTime\": { \"$exists\": false } },\n    { \"EmailSentDateTime\": { \"$eq\": \"\" } }\n  ]\n}"
+      },
+      "id": "1cf899ff-8c5e-42e7-829c-02eb71c4f10a",
+      "name": "MongoDB2",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        460
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "mail",
+        "fromEmail": "email@helios.gallery",
+        "fromName": "Helios Gallery",
+        "toEmail": "={{ $json.email }}",
+        "dynamicTemplate": true,
+        "templateId": "d-f9b53f3d78394996ab46f46e2e393200",
+        "dynamicTemplateFields": {
+          "fields": [
+            {
+              "key": "image_url",
+              "value": "={{ 'https://cdn.helios.gallery/' + $json.imageThumbnailfilename }}"
+            },
+            {
+              "key": "download_link",
+              "value": "={{ 'https://helios.gallery/gallery/image/' + $json.HID }}"
+            },
+            {
+              "key": "HID",
+              "value": "={{ $json.HID }}"
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "id": "05e9e8ef-7706-4fc6-8119-1a61f560893d",
+      "name": "SendGrid",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [
+        820,
+        460
+      ],
+      "credentials": {
+        "sendGridApi": {
+          "id": "CTHfkanoHzhJiiqs",
+          "name": "SendGrid account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "queue": "email",
+        "options": {
+          "acknowledge": "executionFinishesSuccessfully",
+          "jsonParseBody": true,
+          "parallelMessages": 1
+        }
+      },
+      "id": "9d770bd7-a6c7-41aa-9612-ce04a6c0b98c",
+      "name": "SendEmail",
+      "type": "n8n-nodes-base.rabbitmqTrigger",
+      "typeVersion": 1,
+      "position": [
+        460,
+        460
+      ],
+      "credentials": {
+        "rabbitmq": {
+          "id": "mprMS2wawMG4NvS2",
+          "name": "RabbitMQ account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=Workflow: {{$json[\"workflow\"][\"name\"]}}\nError: {{$json[\"execution\"][\"error\"][\"message\"]}}\nLast node executed: {{$json[\"execution\"][\"lastNodeExecuted\"]}}\nExecution URL: {{$json[\"execution\"][\"url\"]}}\nStacktrace:\n{{$json[\"execution\"][\"error\"][\"stack\"]}}",
+        "options": {}
+      },
+      "id": "8c003e44-3bdf-45a3-b9b0-b6357761b1bc",
+      "name": "Discord-Incidents",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        440
+      ],
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "ouFw97u74kYjCTfd",
+          "name": "Helios Incidents"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "MongoDB2": [
+      {
+        "json": {
+          "_id": "6717d65f05f365d9b775c706",
+          "HID": "a735346e-5805-4078-8270-f5549581f64d",
+          "name": "Neer",
+          "email": "neerpatel@gmail.com",
+          "SendGridMessageId": "",
+          "prompt": "An illustration for GM Insurance's Digital Enablement Platform group, known as Helios. The design should embrace a retro theme, which drives the visual and symbolic direction of the artwork. Use the Helios team logo prominently at the center with a sunburst pattern in neutral Racing from it. Position the GM Insurance logo at the top center and, at the core of the design, depict a stylized Corvette. Rays Racing outward from the Corvette, representing Cloud Engineering, API Development, and Site Reliability Engineering, each with appropriate retro icons (clouds, code brackets, gears). Use a futuristic/techno, retro font for the text 'Digital Enablement Platform' below the illustration to unify the design. The color palette should remain limited to neutral for clean, streamlined screen printing. The overall illustration should be shaped by a Van Gogh influence, ensuring the design stays true to the chosen retro.",
+          "imagefilename": "Helios-Images/a735346e-5805-4078-8270-f5549581f64d.2024-10-22-11-44-15.Neer.png",
+          "imageThumbnailfilename": "Helios-Images/a735346e-5805-4078-8270-f5549581f64d.2024-10-22-11-44-15.Neer.thumb.png",
+          "Title": "",
+          "voteCount": 0,
+          "createDatetime": "2024-10-22T16:44:15.685Z",
+          "updateDatetime": "2024-10-22T11:44:46.338-05:00",
+          "EmailSentDateTime": ""
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Discord-Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "MongoDB3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB2": {
+      "main": [
+        [
+          {
+            "node": "SendGrid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SendGrid": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SendEmail": {
+      "main": [
+        [
+          {
+            "node": "MongoDB2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "13797e56-43a9-4e62-b8d3-c4451bed308c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "003b54b4a0b473b57bb13d6ebdd313823cc0436b01fadd3b78df8a53a84b8596"
+  },
+  "id": "OkABpWSd3oLjAQMz",
+  "tags": []
+}

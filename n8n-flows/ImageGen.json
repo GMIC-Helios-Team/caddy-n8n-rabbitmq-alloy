@@ -1,0 +1,549 @@
+{
+  "name": "ImageGen",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "helios-cdn",
+        "fileName": "={{ $('Payload-Transform').item.json.imagefilename }}",
+        "additionalFields": {
+          "acl": "publicRead"
+        }
+      },
+      "id": "c4c75f21-274b-46c1-bf7f-aa1cc476b4e2",
+      "name": "Upload Image",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        700
+      ],
+      "credentials": {
+        "s3": {
+          "id": "uTgviauJjRVCpPNe",
+          "name": "cdn.helios.gallery"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "id": "93cd6bba-c3e9-4b36-ade4-c74919d5c695",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        800
+      ],
+      "webhookId": "3fa1501c-ed70-47ae-a416-6329a51c567a"
+    },
+    {
+      "parameters": {},
+      "id": "ac39fbdf-1e13-4cfd-9f89-beeea24d725e",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1800,
+        520
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "collection": "image-gallery",
+        "options": {},
+        "query": "={ \"HID\" : {{ $json.content.HID.quote() }} }"
+      },
+      "id": "3fd5b0c8-02d5-467e-ac7b-3fa3f43fb7d6",
+      "name": "MongoDB1",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        180,
+        720
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n\"_id\" : {{ $json._id }},\n\"HID\" : {{ $json.HID.quote() }},\n\"name\" : {{ $json.name.quote() }},\n\"prompt\": {{ $json.prompt.quote() }},\n  \"imagefilename\": \"Helios-Images/{{ $json.HID }}.{{ $now.format('yyyy-MM-dd-HH-mm-ss') }}.{{ $json.name }}.png\",\n  \"imageThumbnailfilename\": \"Helios-Images/{{ $json.HID }}.{{ $now.format('yyyy-MM-dd-HH-mm-ss') }}.{{ $json.name }}.thumb.png\",\n\"updateDatetime\" : \"{{ $now.toString() }}\"\n}\n",
+        "options": {}
+      },
+      "id": "33cddb22-38cd-4af8-a9b1-6a16bc13efb9",
+      "name": "Payload-Transform",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        740,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "width": 300,
+        "height": 300,
+        "options": {}
+      },
+      "id": "b492a021-0f11-4f3a-bbc5-b45542dad0b0",
+      "name": "Edit Image",
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n\"_id\" : {{ $('Payload-Transform').item.json._id.quote() }},\n\"HID\" : {{ $('Payload-Transform').item.json.HID.quote() }},\n\"imagefilename\": {{ $('Payload-Transform').item.json.imagefilename.quote() }},\n\"imageThumbnailfilename\": {{ $('Payload-Transform').item.json.imageThumbnailfilename.quote() }},\n\"updateDatetime\" : \"{{ $now.toString() }}\"\n}\n",
+        "options": {}
+      },
+      "id": "87bc30a6-9643-4a06-895c-0f2f9bb98b48",
+      "name": "Transform-MongoUpdate",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        2080,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=OpenAI - Error : \nid : {{ $workflow['id'] }}\nname : {{ $workflow['name'] }}\nexecution : {{ $json }}",
+        "options": {}
+      },
+      "id": "9627b32e-d4f5-4d32-9a57-7eddbdc92930",
+      "name": "Discord-Incidents-OpenAI",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        740
+      ],
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "ouFw97u74kYjCTfd",
+          "name": "Helios Incidents"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3645f8bb-8b22-4e93-afca-30bdb698ddc7",
+              "leftValue": "={{ $json.imagefilename }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "82c35f47-8487-4ec6-912f-92be9f6c92c3",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "queue": "n8n",
+        "options": {
+          "acknowledge": "immediately",
+          "jsonParseBody": true
+        }
+      },
+      "id": "0adc6745-33af-43a3-963e-5018bd6e7fb6",
+      "name": "n8n",
+      "type": "n8n-nodes-base.rabbitmqTrigger",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        720
+      ],
+      "credentials": {
+        "rabbitmq": {
+          "id": "mprMS2wawMG4NvS2",
+          "name": "RabbitMQ account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "268747ee-e2f4-4955-8df8-d0d1c184cd99",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        160,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=Workflow: {{$json[\"workflow\"][\"name\"]}}\nError: {{$json[\"execution\"][\"error\"][\"message\"]}}\nLast node executed: {{$json[\"execution\"][\"lastNodeExecuted\"]}}\nExecution URL: {{$json[\"execution\"][\"url\"]}}\nStacktrace:\n{{$json[\"execution\"][\"error\"][\"stack\"]}}",
+        "options": {}
+      },
+      "id": "c73e8e89-c49a-4a9e-a51b-d034339a1afb",
+      "name": "Discord-Incidents",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        360,
+        1120
+      ],
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "ouFw97u74kYjCTfd",
+          "name": "Helios Incidents"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=Image Generated For \"{{ $('Payload-Transform').item.json.name }}\"\nhttps://cdn.helios.gallery/{{ $('Payload-Transform').item.json.imagefilename }}",
+        "options": {},
+        "embeds": {
+          "values": [
+            {
+              "description": "=Image For {{ $('Payload-Transform').item.json.name }}",
+              "author": "=",
+              "image": "=https://cdn.helios.gallery/{{ $('Payload-Transform').item.json.imagefilename }}",
+              "thumbnail": "=https://cdn.nullpointers.com/{{ $('Payload-Transform').item.json.imageThumbnailfilename }}"
+            }
+          ]
+        }
+      },
+      "id": "9907fabd-39c8-42f7-b016-ae2f1e22dd00",
+      "name": "Discord-ImgGen",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        2100,
+        340
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "VEfbYscfKz3eCvpW",
+          "name": "ImageGen"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "queue": "email",
+        "sendInputData": false,
+        "message": "={ \"HID\" : {{ $('n8n').item.json.content.HID.quote() }} }",
+        "options": {}
+      },
+      "id": "760b4b91-ae7c-46fb-bb96-d8778bdd4546",
+      "name": "SendEmail-Queue",
+      "type": "n8n-nodes-base.rabbitmq",
+      "typeVersion": 1.1,
+      "position": [
+        2060,
+        780
+      ],
+      "credentials": {
+        "rabbitmq": {
+          "id": "mprMS2wawMG4NvS2",
+          "name": "RabbitMQ account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "image-gallery",
+        "updateKey": "HID",
+        "fields": "imagefilename, imageThumbnailfilename, updateDatetime",
+        "options": {}
+      },
+      "id": "a0c497fa-2810-48b7-85aa-c821ab200cf1",
+      "name": "MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        2260,
+        540
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $('Payload-Transform').item.json.prompt }}",
+        "options": {
+          "quality": "hd",
+          "size": "1024x1024",
+          "style": "vivid",
+          "returnImageUrls": false,
+          "binaryPropertyOutput": "data"
+        }
+      },
+      "id": "56cdb340-c656-45b9-8080-28601d215547",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.3,
+      "position": [
+        980,
+        560
+      ],
+      "retryOnFail": true,
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "openAiApi": {
+          "id": "atk46usWc1uOMfla",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "helios-cdn",
+        "fileName": "={{ $('Payload-Transform').item.json.imageThumbnailfilename }}",
+        "additionalFields": {
+          "acl": "publicRead"
+        }
+      },
+      "id": "3de14b3c-c72b-4a52-9325-55e3626f7947",
+      "name": "Upload Thumbnail",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        500
+      ],
+      "credentials": {
+        "s3": {
+          "id": "uTgviauJjRVCpPNe",
+          "name": "cdn.helios.gallery"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Upload Image": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "SendEmail-Queue",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Transform-MongoUpdate",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Discord-ImgGen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payload-Transform": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Thumbnail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform-MongoUpdate": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord-Incidents-OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Payload-Transform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "MongoDB1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Discord-Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Edit Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Discord-Incidents-OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Thumbnail": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6d850b61-b96e-40b1-a9e5-c65a541e0a42",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "003b54b4a0b473b57bb13d6ebdd313823cc0436b01fadd3b78df8a53a84b8596"
+  },
+  "id": "u48h29UbNGEsvHaE",
+  "tags": []
+}

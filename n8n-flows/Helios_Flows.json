@@ -1,0 +1,2467 @@
+{
+  "name": "Helios Flows",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "95fbe207-6b18-4e61-9506-89d04296bd07",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4af159de-7225-4efc-a206-6bdef30cb17b",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        1000
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get the 'name' property from the webhook body\nconst name = $json[\"body\"][\"name\"];\n\n// Validate that 'name' exists\nif (!name) {\n  return { \n    result : false,\n    message : \"The 'name' property is missing\"\n  };\n}\n\n// Ensure 'name' does not contain any special characters\n// Allow only letters, spaces, hyphens, and apostrophes\nconst isValid = /^[a-zA-Z\\s'-]+$/.test(name);\n\nif (!isValid) {\n  return { \n    result : false,\n    message : \"The 'name' contains invalid characters. Only letters, spaces, hyphens, and apostrophes are allowed.\"\n         };\n}\n\n// Get the 'name' property from the webhook body\nconst prompt = $json[\"body\"][\"prompt\"];\n\n// Validate that 'name' exists\nif (!prompt) {\n  return { \n    result : false,\n    message : \"The 'prompt' property is missing\"\n  };\n}\n\nconst email = $json[\"body\"][\"email\"];\nif (!email) {\n  return { \n    result : false,\n    message : \"The 'email' property is missing\"\n  };\n}\n// Ensure 'email' is valid\nconst isEmailValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/.test(email);\nif (!isEmailValid) {\n  return { \n    result : false,\n    message : \"The 'email' isn't valid.\"\n         };\n}\n\n// Return the name if valid\nreturn {\n  result: true,\n  message : \"\"\n};\n"
+      },
+      "id": "e38cb021-daed-4690-8dd8-366f9bb6fa5c",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        1000
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"message\": \"{{ $json.message }}\"\n} ",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "4d574072-119b-4bd1-8708-a076c3b04c2f",
+      "name": "Bad Request",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2360,
+        1180
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "id": "1e1b2766-9fae-4783-b5a7-af11a1531209",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        740,
+        2380
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get the 'name' property from the webhook body\nconst classification = $json[\"query\"][\"classification\"];\n\nconst word = $json[\"query\"][\"word\"];\n// Validate that 'name' exists\nif (!classification) {\n  return { \n    result : false,\n    message : \"The 'classification' property is missing\"\n  };\n}\nif (!word) {\n  return { \n    result : false,\n    message : \"The 'word' property is missing\"\n  };\n}\n\n// Ensure 'word' does not contain any special characters\n// Allow only letters, spaces, hyphens, and apostrophes\nconst isValid = /^[a-zA-Z\\s'-]+$/.test(word);\n\nif (!isValid) {\n  return { \n    result : false,\n    message : \"The 'word' contains invalid characters. Only letters, spaces, hyphens, and apostrophes are allowed.\"\n         };\n}\n\n// Return the name if valid\nreturn {\n  result: true,\n  message : \"\"\n};\n"
+      },
+      "id": "5f34c1fb-1cdf-48ce-962b-b8b511d67fe2",
+      "name": "Code-InputValidator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        2080
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "24d39e66-233c-484d-a3bf-97511f537ffa",
+              "leftValue": "={{ $json.result }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "17c67629-880e-4842-a996-d92d9a05e49c",
+      "name": "If-InputValidator",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.1,
+      "position": [
+        1220,
+        2080
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": "={{ $if($json.result, 200, 200) }}"
+        }
+      },
+      "id": "bc63141e-e249-4245-b4b3-891d9c2f4446",
+      "name": "Respond to Webhook2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2900,
+        2100
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"word\" : \"{{ $('InputValidator').item.json.query.word }}\",\n  \"classification\" : \"{{ $('InputValidator').item.json.query.classification }}\",\n  \"result\": {{ $if($json.hasField('flagged'), $if($json.hasField('message'), ($json.flagged || $json.message.content.result), $json.flagged), $if($json.hasField('message'), $json.message.content.result, null)) }},\n  \"OpenAI-moderations\" : { \n      \"flagged\" : {{ $ifEmpty($json.flagged, null) }},\n      \"categories\" : {{ $ifEmpty($json?.categories?.toJsonString(), \"{}\") }},\n      \"category_scores\": {{ $ifEmpty($json?.category_scores?.toJsonString(), \"{}\")  }}\n  },\n  \"OpenAI-classify\" : {{ $if( $json.hasField('message'), $json.message?.content?.toJsonString(), {}.toJsonString() ) }},\n  \"message\" : \"{{ $if( $json.hasField('message'), $if( $json.message.content.message.value, $json.message.content.message.value, $json.message.content.message), \"\") }}\",\n\"source\" : \"OpenAI\"\n}\n",
+        "includeOtherFields": "=",
+        "options": {}
+      },
+      "id": "6a3a9475-fe54-4dba-9a04-bd9df67b9c8d",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2640,
+        1740
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "input",
+        "fields": "word, classification, result,  message, OpenAI-moderations, OpenAI-classify",
+        "options": {}
+      },
+      "id": "ddfd6b47-dfe7-4524-9e84-53ed44aab0c7",
+      "name": "Input-Insert",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        2980,
+        1740
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "783485a7-692a-4184-a65f-3872fd6ab4fb",
+              "name": "source",
+              "value": "database",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "d5ce4540-92db-4634-a39a-afb5a1465b07",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2380,
+        1980
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "input",
+        "options": {
+          "limit": 1
+        },
+        "query": "={\n  \"$and\": [\n    {\n      \"word\": {\n        \"$regex\": \"^{{ $node['InputValidator'].json['query']['word'] }}$\",\n        \"$options\": \"i\"\n      }\n    },\n    {\n      \"classification\": {\n        \"$regex\": \"^({{ $node['InputValidator'].json['query']['classification'] }}|\\\\*)$\",\n        \"$options\": \"i\"\n      }\n    }\n  ]\n}\n"
+      },
+      "id": "401fade3-4945-4b6c-b8b1-a47b62fa6be7",
+      "name": "MongoDB-FindInput",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        1900
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "ad33fad0-7d50-47ba-8b98-f5e525c41efa",
+              "leftValue": "={{ $json[\"word\"] }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b0b46896-4624-4fbb-a87a-d593a1f610aa",
+      "name": "If-GotMongoDbData",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.1,
+      "position": [
+        1720,
+        1900
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "09a7e654-f8b7-4d91-92f4-3bb2249fab0d",
+      "name": "Merge-InputValidator",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2460,
+        1740
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "image-gallery",
+        "fields": "HID, name, email, SendGridMessageId, prompt, imagefilename, imageThumbnailfilename, Title, voteCount, createDatetime, updateDatetime, EmailSentDateTime",
+        "options": {
+          "dateFields": "createDatetime, updateDatetime, EmailSentDateTime"
+        }
+      },
+      "id": "fd4e6ed6-57a4-4e48-aae0-e28f7d72697b",
+      "name": "MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1980,
+        960
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"HID\" : {{ $json.data.quote() }},\n  \"name\": {{ $('ImageGen').item.json.body.name.quote() }},\n  \"email\" : {{ $('ImageGen').item.json.body.email.quote() }},\n  \"SendGridMessageId\" : \"\",\n  \"prompt\" : {{ $('ImageGen').item.json.body.prompt.quote() }},\n  \"imageThumbnailfilename\" : \"\",\n  \"imagefilename\" : \"\",\n   \"Title\" : \"\",\n   \"voteCount\" : 0,\n   \"createDatetime\" : {{ $now }},\n   \"updateDatetime\" : \"\",\n   \"EmailSentDateTime\" : \"\"\n}\n",
+        "options": {}
+      },
+      "id": "ec770ab5-a262-4d8f-8580-02e51cd5ad32",
+      "name": "MongoDataTransform",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1740,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "image-gallery",
+        "options": {
+          "limit": "={{ $json.query.limit }}",
+          "skip": "={{ $json.query.offset }}"
+        },
+        "query": "{ \"$and\" : [\n   { \"HID\": { \"$exists\": true } },\n   { \"imagefilename\" : { \"$ne\": \"\" } }\n]}"
+      },
+      "id": "ca1e28e8-7654-4aa0-8bbb-96d5c7868b92",
+      "name": "MongoDB1",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        680
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "5661127d-6c14-4c0d-aa0c-a0636a6c253c",
+      "name": "Respond to Webhook3",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1700,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9e718a7-91bf-45ea-b73e-50d2828eef0d",
+              "name": "query.offset",
+              "value": "={{ $if($json.query.offset.isNotEmpty(), $json.query.offset, 0) }}",
+              "type": "number"
+            },
+            {
+              "id": "d75cf97b-1f00-456f-bafc-429d2e0473f6",
+              "name": "query.limit",
+              "value": "={{ $if($json.query.limit.isNotEmpty(), $json.query.limit, 10) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dea0eefd-32e5-4e80-9d87-d90f612c2be5",
+      "name": "MongoQuery",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1060,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "queue": "n8n",
+        "sendInputData": false,
+        "message": "={ \"HID\" : {{ $json.body.HID.quote() }} }",
+        "options": {}
+      },
+      "id": "0e8f753a-b358-4c5f-af50-107d346bca57",
+      "name": "RabbitMQ",
+      "type": "n8n-nodes-base.rabbitmq",
+      "typeVersion": 1.1,
+      "position": [
+        1020,
+        -40
+      ],
+      "credentials": {
+        "rabbitmq": {
+          "id": "mprMS2wawMG4NvS2",
+          "name": "RabbitMQ account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "7bf9b997-74b6-4563-b7c3-00d662a5b711",
+      "name": "Respond to Webhook4",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1240,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"HID\" : {{ $('MongoDataTransform').item.json.HID.quote() }} }",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "b3eabfcb-bf30-4f81-844e-9fbde5c9d099",
+      "name": "Respond to Webhook5",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2360,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "queue": "n8n",
+        "sendInputData": false,
+        "message": "={ \"HID\" : {{ $('MongoDataTransform').item.json.HID.quote() }} }",
+        "options": {}
+      },
+      "id": "5a8eca80-dcf5-40c0-9c9e-7d13bb48dc3d",
+      "name": "RabbitMQ1",
+      "type": "n8n-nodes-base.rabbitmq",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        960
+      ],
+      "credentials": {
+        "rabbitmq": {
+          "id": "mprMS2wawMG4NvS2",
+          "name": "RabbitMQ account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "action": "generate"
+      },
+      "id": "d0e2979a-d379-487e-9674-cec820e5b038",
+      "name": "Crypto",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ab684824-ac50-4362-8c2c-23d8d971db08",
+              "leftValue": "={{ $json.body.HID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "eba0a0a7-9712-49eb-90c6-1233f54a8b1c",
+              "leftValue": "={{ $json.query.HID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "fc7b451d-3117-4ff0-960b-aebf4ad7a9ba",
+      "name": "If2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1060,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## GetImage\n**Description** : returns the record for the image requested.\n**Input** : HID"
+      },
+      "id": "08756c61-9773-4651-9870-f522186ea5ac",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "b03381b4-8cc2-4fab-b621-fa5a397974a9",
+      "name": "GetImage-Response-Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2420,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "image-gallery",
+        "options": {},
+        "query": "={ \"HID\" : \"{{ $ifEmpty($json.query.HID, $json.body.HID) }}\" }"
+      },
+      "id": "42583e9c-e0f3-42a4-8621-b6dba8f9c717",
+      "name": "MongoDB2",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1300,
+        180
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3d25ae01-ffd5-4eca-9c12-56349032d9c1",
+              "leftValue": "={{ $('MongoDB2').item.json.isNotEmpty()}}",
+              "rightValue": 1,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bc90774e-9516-47ba-a9fb-6f7ed5df2800",
+      "name": "If3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1460,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "a4a08a43-2c96-4880-96b8-feb71c3e2221",
+      "name": "GetImage-Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2440,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "classify",
+        "input": "={{ $('InputValidator').item.json.body.word }}",
+        "options": {
+          "useStableModel": true
+        }
+      },
+      "id": "e02daff8-2010-47c6-ba45-7d72f9e8d144",
+      "name": "OpenAI Moderations",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [
+        2060,
+        1640
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "atk46usWc1uOMfla",
+          "name": "OpenAi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "fc10e089-f1d7-4738-8d53-60413dcf9b27",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2220,
+        1380
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "428ec867-4513-432c-86f5-009123b2d9a2",
+              "name": "HID",
+              "value": "={{ $('MongoDB3').item.json.HID }}",
+              "type": "string"
+            },
+            {
+              "id": "625968f8-d768-4bdd-8de2-7957ab4f2cdb",
+              "name": "Title",
+              "value": "={{ $json.content.replaceAll('\"','') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4a658179-39b3-43d0-86e4-edba49aac8a9",
+      "name": "Edit Fields2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1720,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "image-gallery",
+        "options": {},
+        "query": "={ \"HID\" : \"{{ $ifEmpty($json.query.HID, $json.body.HID) }}\" }"
+      },
+      "id": "849fd836-e7d1-44f3-b64d-9b02a5ac5ea6",
+      "name": "MongoDB3",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        1380
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "image-gallery",
+        "updateKey": "HID",
+        "fields": "Title",
+        "options": {}
+      },
+      "id": "89d25365-0612-4dfc-9dfe-dc9c050e3508",
+      "name": "MongoDB4",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        1260
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ae100694-f25e-405e-86ec-a71b2c6f844a",
+              "leftValue": "={{ $json.Title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c9f4130b-2ca0-4cc8-b69c-69d178697deb",
+              "leftValue": "={{ $json.Title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "a0331a1f-d703-43bd-9128-104b196fc659",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1300,
+        1380
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=Workflow: {{$json[\"workflow\"][\"name\"]}}\nError: {{$json[\"execution\"][\"error\"][\"message\"]}}\nLast node executed: {{$json[\"execution\"][\"lastNodeExecuted\"]}}\nExecution URL: {{$json[\"execution\"][\"url\"]}} \nStacktrace:\n{{$json[\"execution\"][\"error\"][\"stack\"]}}",
+        "options": {}
+      },
+      "id": "29743ca7-d3d6-43d7-8efa-36225bda4c27",
+      "name": "Discord-Incidents",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        900,
+        2380
+      ],
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "ouFw97u74kYjCTfd",
+          "name": "Helios Incidents"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## GetImageList\n**Description** :"
+      },
+      "id": "6f1d4207-4f1b-477e-bddd-0e45f8b311a2",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## ImageGen\n**Description** :"
+      },
+      "id": "c9ea2ea8-4f73-4bf3-8c44-166e18b98758",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        980
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## GetTitle\n**Description** :"
+      },
+      "id": "3aa6baa3-0a21-465d-ae23-d115f59b16b5",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        1460
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## InputValidator\n**Description** :"
+      },
+      "id": "2d227e51-c44b-4cee-97a6-a2bd96b1dd3d",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        440,
+        2060
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## ErrorTrigger\n**Description** :",
+        "color": 3
+      },
+      "id": "d8c21a62-9deb-478d-9f18-786049327342",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        440,
+        2360
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "PostMsg",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "2ca9e46a-a93a-498c-a9b7-7bc846105abb",
+      "name": "PostMsg",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -40
+      ],
+      "webhookId": "cadb1b21-1a38-4569-bdf2-1eb95564c6fb",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "5c11a088-5b9e-4681-b7c5-c21fb26c1f8d",
+      "name": "Respond to Webhook1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        3120,
+        2100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "image-gallery",
+        "query": "[{\"$match\":{\n  \"$or\": [\n    {\"imagefilename\" : {\"$exists\" : false}},\n    {\"imagefilename\" : {\"$eq\": \"\"}}\n  ]\n}\n},\n{\n  \"$count\" : \"count\"\n},\n  {\n    \"$addFields\":{\n      \"label\": \"Missing Images\"\n    }\n  }\n]"
+      },
+      "id": "4a4d3ff9-5f2f-4405-9d8c-07ef9d446804",
+      "name": "MongoDB5",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        2600
+      ],
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e79c07da-3b88-4361-abb5-e14396e369f5",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "15e926d0-668f-4360-bd9e-ab1b7ae1dd9b",
+      "name": "If4",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        2700
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "899ddfb7-98b6-485f-b491-b5b22378af37",
+      "name": "Respond to Webhook6",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1900,
+        2620
+      ],
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "not found",
+        "options": {}
+      },
+      "id": "8c389479-8c2a-4805-899c-6f2511c3d9b9",
+      "name": "Respond to Webhook7",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1900,
+        2800
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "image-gallery",
+        "query": "[{\"$match\":{\n  \"$or\": [\n    {\"HID\" : {\"$exists\" : false}},\n    {\"HID\" : {\"$eq\": \"\"}}\n  ]\n}\n},\n{\n  \"$count\" : \"count\"\n},\n  {\n    \"$addFields\":{\n      \"label\": \"Missing HID\"\n    }\n  }\n]"
+      },
+      "id": "5e60a4b9-a280-4dc4-b44f-ac884b16f635",
+      "name": "MongoDB6",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        2780
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Metrics\n**Description**:"
+      },
+      "id": "ab37b2cb-19e6-4fc1-b94a-6a0a84facc90",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        440,
+        2680
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "input",
+        "query": "[{\"$match\":{\n  \"$and\": [\n    {\"result\" : {\"$exists\" : true}},\n    {\"result\": { \"$type\": 3 }}\n  ]\n}\n},\n{\n  \"$count\" : \"count\"\n},\n  {\n    \"$addFields\":{\n      \"label\": \"Input.Result Invalid Response\"\n    }\n  }\n]"
+      },
+      "id": "3aaa8451-ced4-402c-8a0b-1866b7a6ccf6",
+      "name": "MongoDB7",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        2940
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "image-gallery",
+        "query": "=[\n  {\n    \"$match\": {\n      \"$and\": [\n        { \"HID\": { \"$exists\": true } },\n        { \"imagefilename\": { \"$ne\": \"\" } }\n      ]\n    }\n  },\n  {\n    \"$sort\": {\n      \"createDatetime\": -1\n    }\n  },\n  {\n    \"$facet\": {\n      \"totalCount\": [{ \"$count\": \"count\" }],\n      \"items\": [\n        { \"$skip\": {{ $json.query.offset }} },\n        { \"$limit\": {{ $json.query.limit }} }\n      ]\n    }\n  },\n  {\n    \"$project\": {\n      \"totalCount\": { \"$arrayElemAt\": [\"$totalCount.count\", 0] },\n      \"items\": 1\n    }\n  }\n]\n"
+      },
+      "id": "d5b53528-ecf7-4627-81db-09a7c22f5253",
+      "name": "MongoDB8",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        3280
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "5d250ad8-b317-4bb0-a7e5-be8837db0bd6",
+      "name": "Respond to Webhook8",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1660,
+        3280
+      ],
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9e718a7-91bf-45ea-b73e-50d2828eef0d",
+              "name": "query.offset",
+              "value": "={{ $if($json.query.offset.isNotEmpty(), $json.query.offset, 0) }}",
+              "type": "number"
+            },
+            {
+              "id": "d75cf97b-1f00-456f-bafc-429d2e0473f6",
+              "name": "query.limit",
+              "value": "={{ $if($json.query.limit.isNotEmpty(), $json.query.limit, 10) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "377114b3-c666-434e-be63-f300c752b267",
+      "name": "MongoQuery1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1080,
+        3280
+      ]
+    },
+    {
+      "parameters": {
+        "path": "GetImageList",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1d29be0b-ea5f-41e5-b00b-a30a3fd2f549",
+      "name": "GetImageList",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        840,
+        680
+      ],
+      "webhookId": "42c609f1-9d27-467a-9d36-1e3d6886d2f4",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "metrics",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fb40a0b9-f6a2-499b-bca4-0732a871a4c2",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        700,
+        2720
+      ],
+      "webhookId": "2eaf923d-5ee3-4be0-b7d8-4da545ad0812",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## GetImageListAndCount\nImage Gallery Pagination\n**Description**: limit, offset passed in items and total count returned\n\n",
+        "width": 300.97305764566846
+      },
+      "id": "aa0db554-c68b-4aff-8e9f-90b7935c437e",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        380,
+        3280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3f5cd6a8-e7fd-475f-ab9e-ceb67dbb1ecf",
+              "leftValue": "={{ $('S3-ImageExists').item.json }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "97ff4619-bb64-4b20-9da0-aebd3e9151d7",
+      "name": "If5",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1900,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "bucket",
+        "operation": "search",
+        "bucketName": "helios-cdn",
+        "limit": 1,
+        "additionalFields": {
+          "prefix": "={{  $json.imagefilename }}"
+        }
+      },
+      "id": "e808cbe2-13d7-440a-b88f-674e7604f097",
+      "name": "S3-ImageExists",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        140
+      ],
+      "credentials": {
+        "s3": {
+          "id": "uTgviauJjRVCpPNe",
+          "name": "cdn.helios.gallery"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "GetImageListAndCount",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "843346b3-619b-47e3-9356-6f818f36cea6",
+      "name": "GetImageListAndCount",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        800,
+        3280
+      ],
+      "webhookId": "42c609f1-9d27-467a-9d36-1e3d6886d2f4",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "image-gallery",
+        "updateKey": "=HID",
+        "fields": "=voteCount",
+        "options": {}
+      },
+      "id": "9ea103c0-eeac-4428-b6c1-fdc398bc16e6",
+      "name": "MongoDB9",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        3660
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "1c03a012-e935-4d1c-99c1-9aa0b45c54b4",
+      "name": "Respond to Webhook9",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1700,
+        3660
+      ],
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9e718a7-91bf-45ea-b73e-50d2828eef0d",
+              "name": "HID",
+              "value": "={{ $json.body.HID }}",
+              "type": "string"
+            },
+            {
+              "id": "fee1893c-0b85-4a0a-82aa-7a1334d45a1e",
+              "name": "voteCount",
+              "value": "={{ $json.body.voteCount }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a3b5d43f-3839-45dd-ad2f-7f941b00568f",
+      "name": "MongoQuery2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        3660
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## like-image\n**Description**: increment vote by 1\n",
+        "width": 300.97305764566846
+      },
+      "id": "a5cbab9c-b5c5-4498-9ede-024786b94acc",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        460,
+        3680
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"HID\" : {{ $('MongoDB2').item.json.HID.quote() }},\n  \"name\" : {{ $('MongoDB2').item.json.name.quote() }},\n\"email\" : {{ $('MongoDB2').item.json.email.quote() }},\n\"prompt\" : {{ $('MongoDB2').item.json.prompt.quote() }},\n\"imagefilename\" : {{ $('MongoDB2').item.json.imagefilename.quote() }},\n\"imageThumbnailfilename\" : {{ $('MongoDB2').item.json.imageThumbnailfilename.quote() }},\n\"voteCount\" : {{ $ifEmpty($('MongoDB2').item.json.voteCount, 0) }},\n\"Title\" : \"{{ $ifEmpty($('MongoDB2').item.json.Title, \"\") }}\"\n}",
+        "options": {}
+      },
+      "id": "8e04ceba-4863-47e4-93a8-883a38729aeb",
+      "name": "Edit Fields3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ab684824-ac50-4362-8c2c-23d8d971db08",
+              "leftValue": "={{ $json.body.HID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "eba0a0a7-9712-49eb-90c6-1233f54a8b1c",
+              "leftValue": "={{ $json.query.HID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "942d0bb7-3c4e-438a-8958-e6a08789fccb",
+      "name": "If6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        1480
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"message\": \"{{ $json.message }}\"\n} ",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "84248edf-7718-4aa8-a095-fb5384f07f96",
+      "name": "Bad Request1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2240,
+        1540
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "path": "GetTitle",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "cd721704-de4c-4bcd-8065-f0190b6e6bd4",
+      "name": "GetTitle",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        720,
+        1480
+      ],
+      "webhookId": "716b4fec-76cf-4a2a-811b-40c905ec44e5",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "Please create a creative title for the image you've generated.",
+        "imageUrls": "=https://cdn.helios.gallery/{{ $json.imagefilename }}",
+        "options": {}
+      },
+      "id": "09bd42ee-0244-49f7-8bee-c16bb6966ab1",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.5,
+      "position": [
+        1520,
+        1260
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "atk46usWc1uOMfla",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo-1106",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO-1106"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Evaluate the following JSON input to determine whether the text it contains is appropriate for a professional workplace, based on the provided classification. Inappropriate content includes, but is not limited to, offensive language, hate speech, harassment, threats, inappropriate sexual content, or any other language that violates professional standards of conduct. In addition, evaluate the if the text meets the required classification.\n\nThe JSON input contains two fields: 'word', which is the text to be evaluated, and 'classification', which specifies the category or part of speech. Use the 'classification' to guide your evaluation and ensure the input text aligns with the specified standards.\n\nRespond with a JSON string with 2 fields:\n\nA Boolean object called result: returns true if the text violates workplace standards or does not meet the classification criteria, and false if the text is suitable for a work environment and meets the classification.\n\nA string object called message: returns a message explaining why you returned the result.\n\nInput Schema\n{\n  \"word\": \"{{ $('InputValidator').item.json.query.word }}\",\n  \"classification\": \"{{ $('InputValidator').item.json.query.classification }}\"\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "id": "a00a64d8-751d-4625-861d-23f194b03d61",
+      "name": "OpenAI Classify",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [
+        2060,
+        1860
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "atk46usWc1uOMfla",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "inputvalidator",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "6a68b5c0-1870-4344-866b-11b64bbd5f74",
+      "name": "InputValidator",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        760,
+        2080
+      ],
+      "webhookId": "37fc44d2-8a57-4e77-b075-db286ee9360d",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "MakeDesign",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1aae8bc1-60e0-4315-8f2d-d31d02d1d6f3",
+      "name": "ImageGen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        860,
+        1000
+      ],
+      "webhookId": "37fc44d2-8a57-4e77-b075-db286ee9360d",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "GetImage",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "5510d34c-9521-4302-9183-66283c172b8a",
+      "name": "GetImage",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        840,
+        360
+      ],
+      "webhookId": "42c609f1-9d27-467a-9d36-1e3d6886d2f4",
+      "notesInFlow": true,
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      },
+      "notes": "GetImage - returns the record for the image requested.\nInput : HID"
+    },
+    {
+      "parameters": {
+        "httpMethod": "PATCH",
+        "path": "like-image",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4f67b330-9b99-4e32-8dcd-2451b96db7a3",
+      "name": "like-image",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        840,
+        3660
+      ],
+      "webhookId": "42c609f1-9d27-467a-9d36-1e3d6886d2f4",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "image-gallery",
+        "query": "[{\n  \"$sort\": { \"voteCount\" : -1.0 }\n},\n{\n  \"$limit\" : 1\n},\n{\n  \"$project\": {\"label\": { \"$concat\" : [\"Vote Count - \", {\"$toString\" : \"$name\"}]}, \"count\":\"$voteCount\"}\n}\n]"
+      },
+      "id": "cb304ea0-de5b-4a21-b418-9e61d36e2643",
+      "name": "MongoDB10",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1180,
+        3080
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Re-Queue Items\n**Description**: Generate a list of items that need image generation\n",
+        "width": 300.97305764566846
+      },
+      "id": "9ff90484-817f-409d-83ff-781816570f44",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        4220
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "89912167-16b3-41d1-8664-52e10cbaa441",
+      "name": "Requeue Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        4280
+      ],
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "collection": "image-gallery",
+        "options": {},
+        "query": "={\n  \"$or\": [\n    { \"imagefilename\": { \"$exists\": false } },\n    { \"imagefilename\": { \"$eq\": \"\" } },\n    { \"imageThumbnailfilename\": { \"$exists\": false } },\n    { \"imageThumbnailfilename\": { \"$eq\": \"\" } }\n  ]\n}"
+      },
+      "id": "f4ce8feb-9f90-4c91-a006-f5ca8fff0f0b",
+      "name": "Find documents that need image generation",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1160,
+        4260
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "id": "47f92876-21b1-42f2-a67e-54f044cdcb35",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1420,
+        2680
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "image-gallery",
+        "query": "[\n     {\n        \"$group\": {\n          \"_id\": \"$HID\",\n          \"count\": { \"$sum\": 1 }\n        }\n      },\n      {\n        \"$match\": {\n          \"count\": { \"$gt\": 1 }\n        }\n      },\n      {\n        \"$project\": {\n          \"label\": { \"$concat\": [\"Duplicate HIDs: \", { \"$toString\": \"$_id\" }] },\n          \"count\": 1\n        }\n      }\n]"
+      },
+      "id": "ae0ff3dd-7d04-4397-8dfb-771b6e2f266a",
+      "name": "MongoDB11",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        3100
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "requeue",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a56cfe98-00b6-455a-a4ec-1750af055933",
+      "name": "Items that need Image generation",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        860,
+        4240
+      ],
+      "webhookId": "e70358a8-5206-46ae-8673-64fd62a9c0b2",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "MongoDataTransform": [
+      {
+        "json": {
+          "HID": "155cb462-3f64-49b2-b54e-329e3960329d",
+          "name": "Neer",
+          "email": "neerpatel@gmail.com",
+          "prompt": "An illustration for GM Insurance's Digital Enablement Platform group, known as Helios. The design should incorporate a Western theme. Use the Helios team logo prominently on the front with a sunburst pattern in neutral Running from it. Position the GM Insurance logo at the top center and depict a stylized Dog with rays Running outward, each representing Cloud Engineering, API Development, and Site Reliability Engineering with appropriate icons (cloud, code brackets, gears). Use a Impact, Western font for the text 'Digital Enablement Platform' below the central illustration. The color palette should be limited to neutral for easy screen printing. The entire image should be heavily influenced by Impression",
+          "imageThumbnailfilename": "",
+          "imagefilename": "",
+          "create-datetime": "2024-10-13T14:10:30.775-05:00",
+          "update-datetime": ""
+        }
+      }
+    ],
+    "S3-ImageExists": [
+      {
+        "json": {}
+      }
+    ],
+    "MongoDB2": [
+      {
+        "json": {
+          "_id": "6710434e44aba124e6a5ad34",
+          "HID": "490e45f8-20f0-4199-8e7b-5c6e86c65106",
+          "name": "Ryan Milton",
+          "email": "rmann0302@gmail.com",
+          "prompt": "An illustration for GM Insurance's Digital Enablement Platform group, known as Helios. The design should embrace a barnyard fun theme, which drives the visual and symbolic direction of the artwork. Use the Helios team logo prominently at the center with a sunburst pattern in bright aggressively flying from it. Position the GM Insurance logo at the top center and, at the core of the design, depict a stylized fighting rooster. Rays aggressively flying outward from the {noun}, representing Cloud Engineering, API Development, and Site Reliability Engineering, each with appropriate barnyard fun icons (clouds, code brackets, gears). Use a slab-serif, barnyard fun font for the text 'Digital Enablement Platform' below the illustration to unify the design. The color palette should remain limited to bright for clean, streamlined screen printing. The overall illustration should be shaped by a van gogh influence, ensuring the design stays true to the chosen barnyard fun.",
+          "imagefilename": "",
+          "imageThumbnailfilename": "",
+          "create-datetime": "2024-10-16T22:50:54.016Z",
+          "update-datetime": ""
+        }
+      }
+    ]
+  },
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Crypto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Bad Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Discord-Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code-InputValidator": {
+      "main": [
+        [
+          {
+            "node": "If-InputValidator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If-InputValidator": {
+      "main": [
+        [
+          {
+            "node": "MongoDB-FindInput",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Input-Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB-FindInput": {
+      "main": [
+        [
+          {
+            "node": "If-GotMongoDbData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If-GotMongoDbData": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Classify",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OpenAI Moderations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge-InputValidator": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDataTransform": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoQuery": {
+      "main": [
+        [
+          {
+            "node": "MongoDB1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RabbitMQ": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "RabbitMQ1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RabbitMQ1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "MongoDataTransform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "MongoDB2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GetImage-Response-Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "S3-ImageExists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GetImage-Response-Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Moderations": {
+      "main": [
+        [
+          {
+            "node": "Merge-InputValidator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "MongoDB4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB3": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostMsg": {
+      "main": [
+        [
+          {
+            "node": "RabbitMQ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB6": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "MongoDB7": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "MongoDB8": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoQuery1": {
+      "main": [
+        [
+          {
+            "node": "MongoDB8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetImageList": {
+      "main": [
+        [
+          {
+            "node": "MongoQuery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "MongoDB6",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB7",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB10",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GetImage-Response-Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "S3-ImageExists": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetImageListAndCount": {
+      "main": [
+        [
+          {
+            "node": "MongoQuery1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB9": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoQuery2": {
+      "main": [
+        [
+          {
+            "node": "MongoDB9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "GetImage-Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "MongoDB3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Bad Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetTitle": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Classify": {
+      "main": [
+        [
+          {
+            "node": "Merge-InputValidator",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "InputValidator": {
+      "main": [
+        [
+          {
+            "node": "Code-InputValidator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ImageGen": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetImage": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "like-image": {
+      "main": [
+        [
+          {
+            "node": "MongoQuery2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB10": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Find documents that need image generation": {
+      "main": [
+        [
+          {
+            "node": "Requeue Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB11": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Items that need Image generation": {
+      "main": [
+        [
+          {
+            "node": "Find documents that need image generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "84893580-32d0-45d7-ae95-1acce8f8bd9a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "003b54b4a0b473b57bb13d6ebdd313823cc0436b01fadd3b78df8a53a84b8596"
+  },
+  "id": "MndwiaTelox09l29",
+  "tags": []
+}

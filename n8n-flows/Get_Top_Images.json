@@ -1,0 +1,135 @@
+{
+  "name": "Get Top Images",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9e718a7-91bf-45ea-b73e-50d2828eef0d",
+              "name": "query.number",
+              "value": "={{ $if($json.query.number.isNotEmpty(), $json.query.number, 10) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6d3c3d26-8f3f-4868-8e5d-5e40ed1fcb43",
+      "name": "MongoQuery1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        860,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "image-gallery",
+        "query": "=[\n  { \"$match\": { \"imagefilename\": { \"$ne\": \"\" }, \"Title\": { \"$ne\": \"\" } } },\n  { \"$sort\": { \"voteCount\": -1 } },\n  { \"$limit\": {{ $json.query.number }} },\n  { \"$project\": {\n    \"_id\": \"$_id\",\n    \"name\": \"$name\",\n    \"HID\":\"$HID\",\n    \"voteCount\": \"$voteCount\",\n    \"Title\": \"$Title\",\n    \"imagefilename\": \"$imagefilename\"\n  }}\n]\n "
+      },
+      "id": "90ca19f4-e7d0-477f-9c4c-3a751384b5f6",
+      "name": "MongoDB8",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        420
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "O8n2GDZd8NoK3qYS",
+          "name": "MongoDB helios-imagery-db"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "c130a70c-c584-4b0a-85ec-d4ea76cbe614",
+      "name": "Respond to Webhook8",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        420
+      ],
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "path": "GetTopImages",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "072dce63-ce4b-4c3e-a132-8b6b1a819c7d",
+      "name": "GetTopImages",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        640,
+        420
+      ],
+      "webhookId": "42c609f1-9d27-467a-9d36-1e3d6886d2f4",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "tXGjANUFF5reX1DA",
+          "name": "Helios"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "MongoQuery1": {
+      "main": [
+        [
+          {
+            "node": "MongoDB8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB8": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetTopImages": {
+      "main": [
+        [
+          {
+            "node": "MongoQuery1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "05fc7c79-ab58-4451-a405-c475cff48abe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "003b54b4a0b473b57bb13d6ebdd313823cc0436b01fadd3b78df8a53a84b8596"
+  },
+  "id": "BdcXAiQwYiXtlol8",
+  "tags": []
+}
